@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 import GPy
 
 class RCF():
