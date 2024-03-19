@@ -63,7 +63,7 @@ class RCF():
         D_iX *= np.diag(L_ij)[:,None]
         D_iX  = np.matmul(L_ij, D_iX)
 
-        self.S_jX  = scipy.linalg.cho_solve((L_ij, True), D_iX)
+        self.S_iX  = scipy.linalg.cho_solve((L_ij, True), D_iX)
 
     def evaluate(self, D_ax):
         """ evaluate for arbitrary values/points in OUT given points in IN.
@@ -74,6 +74,6 @@ class RCF():
               D_aX : 2d-np.ndarray (D_aX ∈ OUT, note captial 'X')
         """
         D_ax += self.IN_noise*np.random.normal(0,1,D_ax.shape).astype(self.dtype)
-        D_aX  = np.matmul( self.kernel.K(D_ax, self.R_ix), self.S_jX )
+        D_aX  = np.matmul( self.kernel.K(D_ax, self.R_ix), self.S_iX )
         D_aX += self.OUT_noise*np.random.normal(0,1,D_aX.shape).astype(self.dtype)
         return D_aX
