@@ -44,7 +44,7 @@ class RCF():
         else:
             self.OUT_noise = OUT_noise
         
-        ### find a series of random defining points, keep looping until we find a stable configuration of initial-points
+        ### find a series of random defining points
         c_i        = jax.numpy.diff(self.IN, axis=1).reshape(-1)
         self.R_ix  = c_i[None,:]*jax.random.uniform(self.key, (N, self.IN.shape[0]), dtype=self.dtype) 
         self.R_ix += self.IN[:,0][None,:]
