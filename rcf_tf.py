@@ -63,7 +63,7 @@ class RCF():
         ### compute (L \ D) used to interpolate arbtirary points
         self.S_iX  = tf.linalg.cholesky_solve(L_ij, D_iX)
 
-    def evaluate(self, D_ax):
+    def __call__(self, D_ax):
         """ evaluate for arbitrary values/points in OUT given points in IN.
         GIVEN >
               self
