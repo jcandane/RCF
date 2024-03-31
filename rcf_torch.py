@@ -32,7 +32,7 @@ class RCF():
         self.MO     = MO     ### int (dimension of OUT)
         self.kernel = kernel
         self.seed   = seed ### define random sampling key
-        
+
         torch.manual_seed(self.seed)
 
         ### define anisotropic i.i.d white noise
@@ -61,9 +61,9 @@ class RCF():
         D_iX       = torch.matmul(L_ij, D_iX)
 
         ### compute (L \ D) used to interpolate arbtirary points
-        self.S_iX  = torch.cholesky_solve(D_iX, L_ij)
+        self.S_jX  = torch.cholesky_solve(D_iX, L_ij)
 
-    def evaluate(self, D_ax):
+    def __call__(self, D_ax):
         """ evaluate for arbitrary values/points in OUT given points in IN.
         GIVEN >
               self
@@ -72,6 +72,6 @@ class RCF():
               D_aX : 2d-torch.Tensor (D_aX ∈ OUT, note captial 'X')
         """
         D_ax += self.IN_noise*torch.normal(0, 1, size=D_ax.shape, dtype=self.dtype)
-        D_aX  = torch.matmul(self.kernel(D_ax, self.R_ix), self.S_iX)
+        D_aX  = torch.matmul(self.kernel(D_ax, self.R_ix), self.S_jX)
         D_aX += self.OUT_noise*torch.normal(0, 1, size=D_aX.shape, dtype=self.dtype)
         return D_aX
