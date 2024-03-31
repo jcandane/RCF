@@ -7,7 +7,7 @@ import gpjax as gpx
 class RCF():
     """ built: 3/19/2024
     this an object of a Random-Contionus-Function (RCF), with-respect-to a gpJAX kernel
-    RCF : IN -> OUT = R^(MO)
+    RCF : IN -> OUT
     we define a prior, and then sample to form a posterior.
     """
 
@@ -49,7 +49,7 @@ class RCF():
         self.R_ix  = c_i[None,:]*jax.random.uniform(self.key, (N, self.IN.shape[0]), dtype=self.dtype)
         self.R_ix += self.IN[:,0][None,:]
 
-        Σ_ij      = self.kernel.gram(self.R_ix).A
+        Σ_ij = self.kernel.gram(self.R_ix).A
         L_ij = jax.numpy.linalg.cholesky(Σ_ij)
         if jax.numpy.sum( jax.numpy.isnan(L_ij).astype( jax.numpy.int32 ) )==0:
             None
@@ -57,14 +57,14 @@ class RCF():
             L_ij = jax.numpy.linalg.cholesky( Σ_ij + jax.numpy.diag( jax.random.uniform( self.key, (self.N, ) , dtype=self.dtype) ) ) ## not immutable
         ###
 
-        D_iX  = jax.random.normal( self.key, (self.N,self.MO) , dtype=self.dtype)
-        D_iX *= jax.numpy.diag(L_ij)[:,None] #*jax.numpy.ones(self.MO, dtype=self.dtype)[None,:]
-        D_iX  = L_ij @ D_iX
-
+        Σ_i   = jax.numpy.diag(Σ_ij)
+        D_iX  = jax.numpy.zeros(self.N, dtype=self.dtype)[:,None]*jax.numpy.ones(self.MO, dtype=self.dtype)[None,:]
+        D_iX += (Σ_i[:,None]*jax.numpy.ones(self.MO, dtype=self.dtype)[None,:])
+        D_iX *= jax.random.normal( self.key, (self.N,self.MO) , dtype=self.dtype) # Affine-transformation on jax.random.normal
         ## correlate D_iX using the Cholesky-factor, yielding random/correlated normal-samples
-        self.S_iX = jax.scipy.linalg.cho_solve((L_ij, True), D_iX)
+        self.S_iX = jax.scipy.linalg.cho_solve((L_ij, True), (L_ij @ D_iX))
 
-    def evaluate(self, D_ax):
+    def __call__(self, D_ax):
         """ evaluate for arbitrary values/points in OUT given points in IN.
         GIVEN >
               self
