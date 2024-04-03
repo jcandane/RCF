@@ -8,7 +8,7 @@ class RCF():
     we define a prior, and then sample to form a posterior.
     """
 
-    def __init__(self, Domain:tf.Tensor, N:int, MO:int=1, seed:int=777,
+    def __init__(self, Domain:tf.Tensor, MO:int=1, N:int=17, seed:int=777,
                  IN_noise=None, OUT_noise=None,
                  kernel=gpflow.kernels.SquaredExponential()):
         """ !! note datatypes should be tf.float64 for stable Cholesky-operations
