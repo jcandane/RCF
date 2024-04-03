@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 import GPy
 
 class RCF():
@@ -8,7 +9,7 @@ class RCF():
     we define a prior, and then sample to form a posterior.
     """
 
-    def __init__(self, Domain:np.ndarray, N:int, MO:int=1, seed:int=777,
+    def __init__(self, Domain:np.ndarray, MO:int=1, N:int=17, seed:int=777,
                  IN_noise=None, OUT_noise=None,
                  kernel=GPy.kern.RBF):
         """ !! note datatypes should be tf.float64 for stable Cholesky-operations
