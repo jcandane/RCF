@@ -1,8 +1,6 @@
 import torch
 import gpytorch
 
-torch.set_default_tensor_type(torch.DoubleTensor)
-
 class RCF():
     """ built: 3/19/2024
     this an object of a Random-Contionus-Function (RCF), with-respect-to a gpytorch kernel
@@ -10,7 +8,7 @@ class RCF():
     we define a prior, and then sample to form a posterior.
     """
 
-    def __init__(self, Domain, N:int, MO:int=1, seed:int=777,
+    def __init__(self, Domain, MO:int=1, N:int=17, seed:int=777,
                  IN_noise=None, OUT_noise=None,
                  kernel=gpytorch.kernels.RBFKernel()):
         """
