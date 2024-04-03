@@ -11,7 +11,7 @@ class RCF():
     we define a prior, and then sample to form a posterior.
     """
 
-    def __init__(self, Domain, N:int, MO:int=1, seed:int=777,
+    def __init__(self, Domain, MO:int=1, N:int=17, seed:int=777,
                  IN_noise=None, OUT_noise=None,
                  kernel=gpx.kernels.RBF() ):
         """ initialize RCF object
@@ -49,12 +49,12 @@ class RCF():
         self.R_ix  = c_i[None,:]*jax.random.uniform(self.key, (N, self.IN.shape[0]), dtype=self.dtype)
         self.R_ix += self.IN[:,0][None,:]
 
-        Σ_ij = self.kernel.gram(self.R_ix).A
-        L_ij = jax.numpy.linalg.cholesky(Σ_ij)
-        if jax.numpy.sum( jax.numpy.isnan(L_ij).astype( jax.numpy.int32 ) )==0:
+        Σ_ij      = self.kernel.gram(self.R_ix).A
+        self.L_ij = jax.numpy.linalg.cholesky(Σ_ij)
+        if jax.numpy.sum( jax.numpy.isnan(self.L_ij).astype( jax.numpy.int32 ) )==0:
             None
         else: ### if cholesky-factorization fails... add random diagonal
-            L_ij = jax.numpy.linalg.cholesky( Σ_ij + jax.numpy.diag( jax.random.uniform( self.key, (self.N, ) , dtype=self.dtype) ) ) ## not immutable
+            self.L_ij = jax.numpy.linalg.cholesky( Σ_ij + jax.numpy.diag( jax.random.uniform( self.key, (self.N, ) , dtype=self.dtype) ) ) ## not immutable
         ###
 
         Σ_i   = jax.numpy.diag(Σ_ij)
@@ -62,7 +62,7 @@ class RCF():
         D_iX += (Σ_i[:,None]*jax.numpy.ones(self.MO, dtype=self.dtype)[None,:])
         D_iX *= jax.random.normal( self.key, (self.N,self.MO) , dtype=self.dtype) # Affine-transformation on jax.random.normal
         ## correlate D_iX using the Cholesky-factor, yielding random/correlated normal-samples
-        self.S_iX = jax.scipy.linalg.cho_solve((L_ij, True), (L_ij @ D_iX))
+        self.S_iX = jax.scipy.linalg.cho_solve((self.L_ij, True), (self.L_ij @ D_iX))
 
     def __call__(self, D_ax):
         """ evaluate for arbitrary values/points in OUT given points in IN.
